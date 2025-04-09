@@ -19,7 +19,6 @@ env/
 .env
 
 # PyInstaller (if you package it as an executable, as mentioned earlier)
-*.spec
 dist/
 build/
 

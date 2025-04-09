@@ -1,0 +1,48 @@
+# Python-specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+pip_log.txt
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment variables (from our .env suggestion)
+.env
+
+# PyInstaller (if you package it as an executable, as mentioned earlier)
+*.spec
+dist/
+build/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Project-specific caches or local data (if you add caching later)
+*.cache
+cache/
+
+# Coverage and testing (if you add tests later)
+.coverage
+coverage.xml
+htmlcov/

@@ -86,6 +86,12 @@ class PagerTreeClient:
         response.raise_for_status()
         return response.json()
 
+    def delete_alert(self, alert_id: str) -> Dict[str, Any]:
+        """Delete an alert in PagerTree."""
+        response = self.session.delete(f"{self.base_url}/alerts/{alert_id}")
+        response.raise_for_status()
+        return response.json() if response.content else {"message": "Alert deleted successfully"}
+
     def acknowledge_alert(self, alert_id: str) -> Dict[str, Any]:
         """Acknowledge an alert in PagerTree."""
         response = self.session.post(f"{self.base_url}/alerts/{alert_id}/acknowledge")

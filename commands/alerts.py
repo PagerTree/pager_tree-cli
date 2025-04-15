@@ -75,6 +75,22 @@ def show_alert_cmd(ctx, alert_id):
     except Exception as e:
         handle_api_error(e, "showing alert")
 
+@alerts.command(name="delete")
+@click.argument("alert_id", required=True)
+@click.option("--force", is_flag=True, help="Delete the alert without confirmation")
+@click.pass_context
+def delete_alert_cmd(ctx, alert_id, force):
+    """Delete an alert in PagerTree."""
+    if not force and not click.confirm(f"Are you sure you want to delete alert {alert_id}?"):
+        click.echo("Deletion cancelled.")
+        return
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.delete_alert(alert_id)
+        click.echo(f"Alert deleted successfully: {alert_id}")
+    except Exception as e:
+        handle_api_error(e, action="deleting alert")
+
 @alerts.command(name="acknowledge")
 @click.argument("alert_id", required=True)
 @click.pass_context
@@ -111,7 +127,7 @@ def resolve_alert_cmd(ctx, alert_id):
     except Exception as e:
         handle_api_error(e, action="resolving alert")
 
-@alerts.command(name="comments")
+@alerts.command(name="list-comments")
 @click.argument("alert_id", required=True)
 @click.option("--limit", default=10, type=click.IntRange(1, 100), help="Number of alerts per page")
 @click.option("--offset", default=0, type=click.IntRange(0), help="Starting point for pagination")

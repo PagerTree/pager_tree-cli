@@ -4,11 +4,23 @@ import click
 import os
 import importlib
 import pkgutil
+from dotenv import load_dotenv
+from api import PagerTreeClient
+
+load_dotenv()
 
 @click.group()
-def cli():
+@click.option(
+    "--config",
+    type=click.Path(exists=True, dir_okay=False, readable=True),
+    help="Path to configuration file (e.g., config.ini)",
+    envvar="PAGERTREE_CONFIG",
+)
+@click.pass_context
+def cli(ctx, config):
     """PagerTree CLI Tool - Manage alerts from the command line."""
-    pass
+    # Initialize PagerTreeClient and store it in the context
+    ctx.obj = PagerTreeClient(config_file=config)
 
 # Dynamically register all command groups from the 'commands' package
 commands_dir = os.path.join(os.path.dirname(__file__), "commands")

@@ -1,5 +1,4 @@
 import click
-from api import api_create_alert, api_list_alerts, api_show_alert
 from utils import display_paginated_results, handle_api_error, format_item_details
 
 @click.group()
@@ -10,21 +9,38 @@ def alerts():
 @alerts.command(name="create")
 @click.option("--title", required=True, help="Title of the alert")
 @click.option("--description", help="Description of the alert")
-def create_alert_cmd(title, description):
+@click.option("--team-ids", multiple=True, help="IDs of the teams to notify")
+@click.option("--urgency", type=click.Choice(["silent", "low", "medium", "high", "critical"]), default="medium", help="Priority of the alert")
+@click.option("--tags", multiple=True, help="Tags for the alert")
+@click.option("--alias", help="Alias for the alert")
+@click.pass_context
+def create_alert_cmd(ctx, title, description, team_ids, urgency, tags, alias):
     """Create a new alert in PagerTree."""
     try:
-        result = api_create_alert(title, description or "No description provided")
-        click.echo(f"Alert created successfully: {result.get('id')}")
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.create_alert(
+            title=title,
+            description=description,
+            team_ids=list(team_ids),
+            urgency=urgency,
+            tags=list(tags),
+            alias=alias
+        )
+        click.echo(f"Alert created successfully: {result.get('tiny_id')}")
     except Exception as e:
-        click.echo(f"Error creating alert: {str(e)}", err=True)
+        handle_api_error(e, action="creating alert")
 
 @alerts.command(name="list")
 @click.option("--limit", default=10, type=click.IntRange(1, 100), help="Number of alerts per page")
 @click.option("--offset", default=0, type=click.IntRange(0), help="Starting point for pagination")
-def list_alerts_cmd(limit, offset):
+@click.option("--status", type=click.Choice(["open", "acknowledged", "resolved", "dropped"]), help="Filter alerts by status")
+@click.option("--search", help="Search for alerts by title, tags, source, or destinations")
+@click.pass_context
+def list_alerts_cmd(ctx, limit, offset, status, search):
     """List alerts in PagerTree with pagination."""
     try:
-        result = api_list_alerts(limit=limit, offset=offset)
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.list_alerts(limit=limit, offset=offset, status=status, search=search)
         alerts_list = result["data"]
         total = result["total"]
         # Prepare table data
@@ -36,19 +52,94 @@ def list_alerts_cmd(limit, offset):
 
 @alerts.command(name="show")
 @click.argument("alert_id", required=True)
-def show_alert_cmd(alert_id):
+@click.pass_context
+def show_alert_cmd(ctx, alert_id):
     """Show details of a specific alert in PagerTree."""
     try:
-        alert = api_show_alert(alert_id)
+        client = ctx.obj  # Get PagerTreeClient from context
+        alert = client.show_alert(alert_id)
         fields = {
-            "id": "Alert ID",
+            "tiny_id": "ID",
+            "status": "Status",
+            "urgency": "Urgency",
+            "tags": "Tags",            
+            "thirdparty_id": "Third Party ID",
+            "destination_team_ids": "Destination Team IDs",
+            "destination_router_ids": "Destination Router IDs",
+            "destination_account_user_ids": "Destination Account User IDs",
             "title": "Title",
             "description": "Description",
-            "status": "Status",
             "created_at": "Created At"
         }
         format_item_details(alert, fields)
-    except requests.exceptions.HTTPError as e:
-        click.echo(f"Error fetching alert: {e.response.status_code} - {e.response.reason}", err=True)
     except Exception as e:
         handle_api_error(e, "showing alert")
+
+@alerts.command(name="acknowledge")
+@click.argument("alert_id", required=True)
+@click.pass_context
+def acknowledge_alert_cmd(ctx, alert_id):
+    """Acknowledge an alert in PagerTree."""
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.acknowledge_alert(alert_id)
+        click.echo(f"Alert acknowledged successfully: {result.get('tiny_id')}")
+    except Exception as e:
+        handle_api_error(e, action="acknowledging alert")
+
+@alerts.command(name="reject")
+@click.argument("alert_id", required=True)
+@click.pass_context
+def reject_alert_cmd(ctx, alert_id):
+    """Reject an alert in PagerTree."""
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.reject_alert(alert_id)
+        click.echo(f"Alert rejected successfully: {result.get('tiny_id')}")
+    except Exception as e:
+        handle_api_error(e, action="rejecting alert")
+
+@alerts.command(name="resolve")
+@click.argument("alert_id", required=True)
+@click.pass_context
+def resolve_alert_cmd(ctx, alert_id):
+    """Resolve an alert in PagerTree."""
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.resolve_alert(alert_id)
+        click.echo(f"Alert resolved successfully: {result.get('tiny_id')}")
+    except Exception as e:
+        handle_api_error(e, action="resolving alert")
+
+@alerts.command(name="comments")
+@click.argument("alert_id", required=True)
+@click.option("--limit", default=10, type=click.IntRange(1, 100), help="Number of alerts per page")
+@click.option("--offset", default=0, type=click.IntRange(0), help="Starting point for pagination")
+@click.pass_context
+def list_alert_comment_cmd(ctx, alert_id, limit, offset):
+    """List an alerts comments in PagerTree."""
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.list_alert_comments(alert_id, limit=limit, offset=offset)
+        comments_list = result["data"]
+        total = result["total"]
+        # Prepare table data
+        headers = ["Created At", "Commentor", "Comment"]
+        table_data = [[comment.get("created_at"), comment.get("created_by_name"), comment.get("body")] for comment in comments_list]
+        display_paginated_results(comments_list, total, limit, offset, "comment", headers, table_data)
+    except Exception as e:
+        handle_api_error(e, action="listing alert comments")
+
+@alerts.command(name="comment")
+@click.argument("alert_id", required=True)
+@click.option("--comment", required=True, help="Comment to add to the alert")
+@click.pass_context
+def create_alert_comment_cmd(ctx, alert_id, comment):
+    """Add a comment to an alert in PagerTree."""
+    try:
+        client = ctx.obj  # Get PagerTreeClient from context
+        result = client.create_alert_comment(alert_id, comment)
+        click.echo(f"Comment added successfully to alert {alert_id}")
+    except Exception as e:
+        handle_api_error(e, action="adding comment to alert")
+

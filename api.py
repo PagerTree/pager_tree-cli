@@ -135,6 +135,94 @@ class PagerTreeClient:
             "offset": offset
         }
 
+    # TEAMS
+    # ======
+
+    def create_team(
+        self,
+        name: str,
+        notes: Optional[str] = None,
+        member_account_user_ids: Optional[List[str]] = None,
+        admin_account_user_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Create a new team in PagerTree."""
+        payload = {
+            "name": name,
+            "notes": notes,
+            "member_account_user_ids": member_account_user_ids or [],
+            "admin_account_user_ids": admin_account_user_ids or []
+        }
+        payload = {k: v for k, v in payload.items() if v is not None}
+        response = self.session.post(f"{self.base_url}/teams", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def list_teams(self, limit: int = 10, offset: int = 0, search: Optional[str] = None) -> Dict[str, Any]:
+        """List all teams in PagerTree."""
+        params = {k: v for k, v in {"limit": limit, "offset": offset, "q": search}.items() if v is not None}
+        response = self.session.get(f"{self.base_url}/teams", params=params)
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "data": data.get("data", []),
+            "total": data.get("total_count", 0),
+            "has_more": data.get("has_more", False),
+            "limit": limit,
+            "offset": offset
+        }
+
+    def show_team(self, team_id: str) -> Dict[str, Any]:
+        """Fetch a single team by ID from PagerTree."""
+        response = self.session.get(f"{self.base_url}/teams/{team_id}")
+        response.raise_for_status()
+        return response.json()
+
+    def update_team(
+        self,
+        team_id: str,
+        name: Optional[str] = None,
+        notes: Optional[str] = None,
+        member_account_user_ids: Optional[List[str]] = None,
+        admin_account_user_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Update a team in PagerTree."""
+        payload = {
+            "name": name,
+            "notes": notes,
+            "member_account_user_ids": member_account_user_ids,
+            "admin_account_user_ids": admin_account_user_ids
+        }
+        payload = {k: v for k, v in payload.items() if v is not None}
+        response = self.session.put(f"{self.base_url}/teams/{team_id}", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def delete_team(self, team_id: str) -> Dict[str, Any]:
+        """Delete a team in PagerTree."""
+        response = self.session.delete(f"{self.base_url}/teams/{team_id}")
+        response.raise_for_status()
+        return response.json() if response.content else {"message": "Team deleted successfully"}
+
+    def get_team_current_oncall(self, team_id: str) -> Dict[str, Any]:
+        """Fetch current on-call users for a team in PagerTree."""
+        response = self.session.get(f"{self.base_url}/teams/{team_id}/current_oncall")
+        response.raise_for_status()
+        return response.json()
+
+    def get_team_alerts(self, team_id: str, limit: int = 10, offset: int = 0) -> Dict[str, Any]:
+        """Fetch alerts for a specific team in PagerTree."""
+        params = {k: v for k, v in {"limit": limit, "offset": offset}.items() if v is not None}
+        response = self.session.get(f"{self.base_url}/teams/{team_id}/alerts", params=params)
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "data": data.get("data", []),
+            "total": data.get("total_count", 0),
+            "has_more": data.get("has_more", False),
+            "limit": limit,
+            "offset": offset
+        }
+
     # USERS
     # ======
 

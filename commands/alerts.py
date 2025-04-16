@@ -26,7 +26,7 @@ def create_alert_cmd(ctx, title, description, team_ids, urgency, tags, alias):
             tags=list(tags),
             alias=alias
         )
-        click.echo(f"Alert created successfully: {result.get('tiny_id')}")
+        click.echo(f"Alert created successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="creating alert")
 
@@ -45,7 +45,7 @@ def list_alerts_cmd(ctx, limit, offset, status, search):
         total = result["total"]
         # Prepare table data
         headers = ["ID", "Title", "Status"]
-        table_data = [[alert.get("tiny_id"), alert.get("title"), alert.get("status")] for alert in alerts_list]
+        table_data = [[alert.get("id"), alert.get("title"), alert.get("status")] for alert in alerts_list]
         display_paginated_results(alerts_list, total, limit, offset, "alert", headers, table_data)
     except Exception as e:
         handle_api_error(e, action="listing alerts")
@@ -59,7 +59,7 @@ def show_alert_cmd(ctx, alert_id):
         client = ctx.obj  # Get PagerTreeClient from context
         alert = client.show_alert(alert_id)
         fields = {
-            "tiny_id": "ID",
+            "id": "ID",
             "status": "Status",
             "urgency": "Urgency",
             "tags": "Tags",            
@@ -99,7 +99,7 @@ def acknowledge_alert_cmd(ctx, alert_id):
     try:
         client = ctx.obj  # Get PagerTreeClient from context
         result = client.acknowledge_alert(alert_id)
-        click.echo(f"Alert acknowledged successfully: {result.get('tiny_id')}")
+        click.echo(f"Alert acknowledged successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="acknowledging alert")
 
@@ -111,7 +111,7 @@ def reject_alert_cmd(ctx, alert_id):
     try:
         client = ctx.obj  # Get PagerTreeClient from context
         result = client.reject_alert(alert_id)
-        click.echo(f"Alert rejected successfully: {result.get('tiny_id')}")
+        click.echo(f"Alert rejected successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="rejecting alert")
 
@@ -123,7 +123,7 @@ def resolve_alert_cmd(ctx, alert_id):
     try:
         client = ctx.obj  # Get PagerTreeClient from context
         result = client.resolve_alert(alert_id)
-        click.echo(f"Alert resolved successfully: {result.get('tiny_id')}")
+        click.echo(f"Alert resolved successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="resolving alert")
 

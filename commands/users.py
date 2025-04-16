@@ -18,7 +18,7 @@ def create_user_cmd(ctx, name, email, role, team_ids):
         client = ctx.obj  # Get PagerTreeClient from context
         roles = {r: True for r in role} if role else {}
         result = client.create_user(name=name, email=email, roles=roles, team_ids=list(team_ids))
-        click.echo(f"User created successfully: {result.get('tiny_id')}")
+        click.echo(f"User created successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="creating user")
 
@@ -38,7 +38,7 @@ def list_users_cmd(ctx, limit, offset, search):
         headers = ["ID", "Name", "Primary Email", "Primary Phone", "Roles"]
         table_data = [
             [
-                user.get("tiny_id"),
+                user.get("id"),
                 user.get("user", {}).get("name", "N/A"),
                 next((email.get("email") for email in user.get("user", {}).get("emails", []) if email.get("primary")), "N/A"),
                 next((phone.get("phone") for phone in user.get("user", {}).get("phones", []) if phone.get("primary")), "N/A"),
@@ -69,7 +69,7 @@ def show_user_cmd(ctx, user_id):
             "created_at": "Created At"
         }
         formatted_user = {
-            "user.id": user.get("tiny_id"),
+            "user.id": user.get("id"),
             "user.name": user.get("user", {}).get("name", "N/A"),
             "user.emails.primary": next(
                 (email.get("email") for email in user.get("user", {}).get("emails", []) if email.get("primary")),
@@ -97,7 +97,7 @@ def update_user_cmd(ctx, user_id, name):
     try:
         client = ctx.obj  # Get PagerTreeClient from context
         result = client.update_user(user_id=user_id, name=name)
-        click.echo(f"User updated successfully: {result.get('tiny_id')}")
+        click.echo(f"User updated successfully: {result.get('id')}")
     except Exception as e:
         handle_api_error(e, action="updating user")
 

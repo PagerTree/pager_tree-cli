@@ -25,12 +25,13 @@ def create_user_cmd(ctx, name, email, role, team_ids):
 @users.command(name="list")
 @click.option("--limit", default=10, type=click.IntRange(1, 100), help="Number of users per page")
 @click.option("--offset", default=0, type=click.IntRange(0), help="Starting point for pagination")
+@click.option("--search", help="Search for users by name, email, phone, or roles")
 @click.pass_context
-def list_users_cmd(ctx, limit, offset):
+def list_users_cmd(ctx, limit, offset, search):
     """List users in PagerTree with pagination."""
     try:
         client = ctx.obj  # Get PagerTreeClient from context
-        result = client.list_users(limit=limit, offset=offset)
+        result = client.list_users(limit=limit, offset=offset, search=search)
         users_list = result["data"]
         total = result["total"]
         # Prepare table data

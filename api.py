@@ -152,9 +152,9 @@ class PagerTreeClient:
         response.raise_for_status()
         return response.json()
 
-    def list_users(self, limit: int = 10, offset: int = 0) -> Dict[str, Any]:
+    def list_users(self, limit: int = 10, offset: int = 0, search: Optional[str] = None) -> Dict[str, Any]:
         """List all users in PagerTree."""
-        params = {k: v for k, v in {"limit": limit, "offset": offset}.items() if v is not None}
+        params = {k: v for k, v in {"limit": limit, "offset": offset, "q": search}.items() if v is not None}
         response = self.session.get(f"{self.base_url}/account_users", params=params)
         response.raise_for_status()
         data = response.json()

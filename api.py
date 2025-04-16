@@ -135,6 +135,96 @@ class PagerTreeClient:
             "offset": offset
         }
 
+    # BROADCASTS
+    # =========
+
+    def create_broadcast(
+        self,
+        title: str,
+        description: Optional[str] = None,
+        destination_account_user_ids: Optional[List[str]] = None,
+        destination_team_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Create a new broadcast in PagerTree."""
+        payload = {
+            "title": title,
+            "description": description,
+            "destination_account_user_ids": destination_account_user_ids or [],
+            "destination_team_ids": destination_team_ids or []
+        }
+        payload = {k: v for k, v in payload.items() if v is not None}
+        response = self.session.post(f"{self.base_url}/broadcasts", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def list_broadcasts(self, limit: int = 10, offset: int = 0) -> Dict[str, Any]:
+        """List all broadcasts in PagerTree."""
+        params = {k: v for k, v in {"limit": limit, "offset": offset}.items() if v is not None}
+        response = self.session.get(f"{self.base_url}/broadcasts", params=params)
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "data": data.get("data", []),
+            "total": data.get("total_count", 0),
+            "has_more": data.get("has_more", False),
+            "limit": limit,
+            "offset": offset
+        }
+
+    def show_broadcast(self, broadcast_id: str) -> Dict[str, Any]:
+        """Fetch a single broadcast by ID from PagerTree."""
+        response = self.session.get(f"{self.base_url}/broadcasts/{broadcast_id}")
+        response.raise_for_status()
+        return response.json()
+
+    def update_broadcast(
+        self,
+        broadcast_id: str,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        destination_account_user_ids: Optional[List[str]] = None,
+        destination_team_ids: Optional[List[str]] = None,
+        response_requested: Optional[bool] = None,
+        response_requested_by: Optional[str] = None,
+        status: Optional[str] = None,
+        notify_sms: Optional[bool] = None,
+        notify_push: Optional[bool] = None,
+        notify_email: Optional[bool] = None,
+        notify_slack: Optional[bool] = None,
+        notify_voice: Optional[bool] = None,
+        notify_whatsapp: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        """Update a broadcast in PagerTree."""
+        payload = {
+            "title": title,
+            "description": description,
+            "destination_account_user_ids": destination_account_user_ids,
+            "destination_team_ids": destination_team_ids,
+            "response_requested": response_requested,
+            "response_requested_by": response_requested_by,
+            "status": status,
+            "meta": {
+                "notify_sms": notify_sms,
+                "notify_push": notify_push,
+                "notify_email": notify_email,
+                "notify_slack": notify_slack,
+                "notify_voice": notify_voice,
+                "notify_whatsapp": notify_whatsapp
+            }
+        }
+        payload = {k: v for k, v in payload.items() if v is not None}
+        if "meta" in payload:
+            payload["meta"] = {k: v for k, v in payload["meta"].items() if v is not None}
+        response = self.session.put(f"{self.base_url}/broadcasts/{broadcast_id}", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def delete_broadcast(self, broadcast_id: str) -> Dict[str, Any]:
+        """Delete a broadcast in PagerTree."""
+        response = self.session.delete(f"{self.base_url}/broadcasts/{broadcast_id}")
+        response.raise_for_status()
+        return response.json() if response.content else {"message": "Broadcast deleted successfully"}
+
     # TEAMS
     # ======
 

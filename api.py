@@ -35,6 +35,9 @@ class PagerTreeClient:
             config.read(config_file)
         return config
 
+    # ALERTS
+    # =======
+
     def create_alert(self, title: str, description: Optional[str] = None, 
                     team_ids: Optional[List[str]] = None, 
                     destination_router_ids: Optional[List[str]] = None,
@@ -131,3 +134,57 @@ class PagerTreeClient:
             "limit": limit,
             "offset": offset
         }
+
+    # USERS
+    # ======
+
+    def create_user(self, name: str, email: str, roles: Optional[Dict[str, bool]] = None, team_ids: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Create a new account user in PagerTree."""
+        payload = {
+            "user_attributes": {
+                "name": name,
+                "emails_attributes": [{"email": email}]
+            },
+            "roles": roles or {},
+            "team_ids": team_ids or []
+        }
+        response = self.session.post(f"{self.base_url}/account_users", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def list_users(self, limit: int = 10, offset: int = 0) -> Dict[str, Any]:
+        """List all users in PagerTree."""
+        params = {k: v for k, v in {"limit": limit, "offset": offset}.items() if v is not None}
+        response = self.session.get(f"{self.base_url}/account_users", params=params)
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "data": data.get("data", []),
+            "total": data.get("total_count", 0),
+            "has_more": data.get("has_more", False),
+            "limit": limit,
+            "offset": offset
+        }
+
+    def show_user(self, user_id: str) -> Dict[str, Any]:
+        """Fetch a single user by ID from PagerTree."""
+        response = self.session.get(f"{self.base_url}/account_users/{user_id}")
+        response.raise_for_status()
+        return response.json()
+
+    def update_user(self, user_id: str, name: Optional[str] = None) -> Dict[str, Any]:
+        """Update an account user in PagerTree."""
+        payload = {}
+        if name:
+            payload["user_attributes"] = {}
+            payload["user_attributes"]["name"] = name
+        payload = {k: v for k, v in payload.items() if v}
+        response = self.session.put(f"{self.base_url}/account_users/{user_id}", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    def delete_user(self, user_id: str) -> Dict[str, Any]:
+        """Delete a user in PagerTree."""
+        response = self.session.delete(f"{self.base_url}/account_users/{user_id}")
+        response.raise_for_status()
+        return response.json() if response.content else {"message": "User deleted successfully"}

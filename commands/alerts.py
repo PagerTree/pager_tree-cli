@@ -107,7 +107,7 @@ def acknowledge_alert_cmd(ctx, alert_id, alias):
 
         # If alias is provided, resolve it to alert_id
         if alias:
-            alias_result = client.list_alerts(search=alias, limit=1, offset=0)
+            alias_result = client.list_alerts(alias=alias, limit=1, offset=0)
             if alias_result["total"] == 0:
                 click.echo(f"No alert found with alias: {alias}")
                 return
@@ -139,7 +139,7 @@ def reject_alert_cmd(ctx, alert_id, alias):
 
         # If alias is provided, resolve it to alert_id
         if alias:
-            alias_result = client.list_alerts(search=alias, limit=1, offset=0, status="open")
+            alias_result = client.list_alerts(alias=alias, limit=1, offset=0, status="open")
             if alias_result["total"] == 0:
                 click.echo(f"No alert found with alias: {alias}")
                 return
@@ -171,7 +171,7 @@ def resolve_alert_cmd(ctx, alert_id, alias):
 
         # If alias is provided, resolve it to alert_id
         if alias:
-            alias_result = client.list_alerts(search=alias, limit=1, offset=0)
+            alias_result = client.list_alerts(alias=alias, limit=1, offset=0)
             if alias_result["total"] == 0:
                 click.echo(f"No alert found with alias: {alias}")
                 return
@@ -205,7 +205,7 @@ def list_alert_comment_cmd(ctx, alert_id, alias, limit, offset):
 
         # If alias is provided, resolve it to alert_id
         if alias:
-            alias_result = client.list_alerts(search=alias, limit=1, offset=0)
+            alias_result = client.list_alerts(alias=alias, limit=1, offset=0)
             if alias_result["total"] == 0:
                 click.echo(f"No alert found with alias: {alias}")
                 return
@@ -243,7 +243,7 @@ def create_alert_comment_cmd(ctx, alert_id, alias, comment):
 
         # If alias is provided, resolve it to alert_id
         if alias:
-            alias_result = client.list_alerts(search=alias, limit=1, offset=0)
+            alias_result = client.list_alerts(alias=alias, limit=1, offset=0)
             if alias_result["total"] == 0:
                 click.echo(f"No alert found with alias: {alias}")
                 return

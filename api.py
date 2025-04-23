@@ -68,9 +68,9 @@ class PagerTreeClient:
         return response.json()
 
     def list_alerts(self, limit: int = 10, offset: int = 0, 
-                   status: Optional[str] = None, search: Optional[str] = None) -> Dict[str, Any]:
+                   status: Optional[str] = None, search: Optional[str] = None, alias: Optional[str] = None) -> Dict[str, Any]:
         """List all alerts in PagerTree."""
-        params = {k: v for k, v in {"limit": limit, "offset": offset, "status": status, "q": search}.items() 
+        params = {k: v for k, v in {"limit": limit, "offset": offset, "status": status, "q": search, "thirdparty_id": alias}.items() 
                  if v is not None}
         response = self.session.get(f"{self.base_url}/alerts", params=params)
         response.raise_for_status()

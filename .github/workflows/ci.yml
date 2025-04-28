@@ -54,9 +54,9 @@ jobs:
         run: |
           pyinstaller pagertree.spec
           if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            mv dist/pagertree dist/pagertree-linux
+            mv dist/pagertree dist/pagertree
           elif [ "${{ matrix.os }}" = "windows-latest" ]; then
-            mv dist/pagertree.exe dist/pagertree-windows.exe
+            mv dist/pagertree.exe dist/pagertree.exe
           fi
         shell: bash  # Use bash for consistent scripting across OSes
 
@@ -85,7 +85,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/pagertree-linux
-            dist/pagertree-windows.exe
+            dist/pagertree
+            dist/pagertree.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -57,6 +57,10 @@ Run `pagertree --help` to see the list of available commands and options.
     ```bash
     PAGERTREE_CONFIG=config.ini pagertree alerts list
     ```
+- Run a command with a specific environment variable:
+    ```bash
+    PAGERTREE_API_KEY=your_api_key pagertree alerts list
+    ```
 
 ## Pre-Built Binaries
 Pre-built binaries for various platforms are available in the [releases](https://github.com/PagerTree/pager_tree-cli/releases) section. You can download the appropriate binary for your operating system and architecture.

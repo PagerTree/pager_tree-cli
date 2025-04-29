@@ -20,6 +20,8 @@ jobs:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper tag versioning
 
       # Set up Python
       - name: Set up Python
@@ -55,12 +57,23 @@ jobs:
           pyinstaller pagertree.spec
         shell: bash  # Use bash for consistent scripting across OSes
 
-      # Version the build (using git tag or commit SHA)
+      # Set version using SEMVER
       - name: Set version
         id: version
         run: |
-          VERSION=$(git describe --tags --always --dirty)
+          # Get the latest tag, or default to 0.0.0 if none exists
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "0.0.0")
+          
+          # Increment patch version
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+          NEW_PATCH=$((PATCH + 1))
+          VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
+          # Create or update the tag
+          git tag -f "$VERSION"
+          git push origin "$VERSION" --force
         shell: bash
 
       # Upload artifact

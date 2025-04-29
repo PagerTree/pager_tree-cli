@@ -9,7 +9,7 @@ def alerts():
 @alerts.command(name="create")
 @click.option("--title", required=True, help="Title of the alert")
 @click.option("--description", help="Description of the alert")
-@click.option("--team-ids", multiple=True, help="IDs of the teams to notify")
+@click.option("--team-id", "team_ids", multiple=True, help="Team IDs to route the alert to")
 @click.option("--urgency", type=click.Choice(["silent", "low", "medium", "high", "critical"]), default="medium", help="Priority of the alert")
 @click.option("--tags", multiple=True, help="Tags for the alert")
 @click.option("--alias", help="Alias for the alert")

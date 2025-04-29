@@ -88,8 +88,12 @@ Run `pagertree --help` to see all available commands and options.
 | Command | Description |
 |---------|-------------|
 | `pagertree alerts list` | List all alerts. |
-| `pagertree alerts create --title "Out of Memory" --team-ids "01JT13C98M186XA3QTRFC250MT"` | Create a new alert. |
+| `pagertree alerts list --status "open"` | List open alerts. |
+| `pagertree alerts create --title "Out of Memory" --team-id "01JT13C98M186XA3QTRFC250MT"` | Create a new alert. |
+| `pagertree alerts create --title "Out of Memory" --alias "oom" --team-id "01JT13C98M186XA3QTRFC250MT"` | Create a new alert with an alias. |
 | `pagertree alerts show "01JT13CYDAMAJDM0G8HR1X8BMY"` | Show details of an alert. |
+| `pagertree alerts acknowledge "01JT13CYDAMAJDM0G8HR1X8BMY"` | Acknowledge an alert. |
+| `pagertree alerts resolve "01JT13CYDAMAJDM0G8HR1X8BMY"` | Resolve an alert. |
 | `pagertree teams list` | List all teams. |
 | `pagertree teams current-oncall "01JT13C98M186XA3QTRFC250MT"` | List current on-call users for a team. |
 

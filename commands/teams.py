@@ -16,7 +16,7 @@ def teams():
 def create_team_cmd(ctx, name, notes, member_ids, admin_ids):
     """Create a new team in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.create_team(
             name=name,
             notes=notes,
@@ -35,7 +35,7 @@ def create_team_cmd(ctx, name, notes, member_ids, admin_ids):
 def list_teams_cmd(ctx, limit, offset, search):
     """List teams in PagerTree with pagination."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.list_teams(limit=limit, offset=offset, search=search)
         teams_list = result["data"]
         total = result["total"]
@@ -58,7 +58,7 @@ def list_teams_cmd(ctx, limit, offset, search):
 def show_team_cmd(ctx, team_id):
     """Show details of a specific team in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         team = client.show_team(team_id)
         
         # Display team details
@@ -164,7 +164,7 @@ def show_team_cmd(ctx, team_id):
 def update_team_cmd(ctx, team_id, name, notes, member_ids, admin_ids):
     """Update a team in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.update_team(
             team_id=team_id,
             name=name,
@@ -186,7 +186,7 @@ def delete_team_cmd(ctx, team_id, force):
         click.echo("Deletion cancelled.")
         return
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.delete_team(team_id)
         click.echo(f"Team deleted successfully: {team_id}")
     except Exception as e:
@@ -198,7 +198,7 @@ def delete_team_cmd(ctx, team_id, force):
 def current_oncall_cmd(ctx, team_id):
     """Show current on-call users for a specific team in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.get_team_current_oncall(team_id)
         if not result:
             click.echo(f"No one schedule oncall for team {team_id}")
@@ -258,7 +258,7 @@ def current_oncall_cmd(ctx, team_id):
 def team_alerts_cmd(ctx, team_id, limit, offset):
     """List alerts for a specific team in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.get_team_alerts(team_id, limit=limit, offset=offset)
         alerts_list = result["data"]
         total = result["total"]

@@ -15,7 +15,7 @@ def users():
 def create_user_cmd(ctx, name, email, role, team_ids):
     """Create a new account user in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         roles = {r: True for r in role} if role else {}
         result = client.create_user(name=name, email=email, roles=roles, team_ids=list(team_ids))
         click.echo(f"User created successfully: {result.get('id')}")
@@ -30,7 +30,7 @@ def create_user_cmd(ctx, name, email, role, team_ids):
 def list_users_cmd(ctx, limit, offset, search):
     """List users in PagerTree with pagination."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.list_users(limit=limit, offset=offset, search=search)
         users_list = result["data"]
         total = result["total"]
@@ -58,7 +58,7 @@ def list_users_cmd(ctx, limit, offset, search):
 def show_user_cmd(ctx, user_id):
     """Show details of a specific user in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         user = client.show_user(user_id)
         fields = {
             "user.id": "User ID",
@@ -95,7 +95,7 @@ def show_user_cmd(ctx, user_id):
 def update_user_cmd(ctx, user_id, name):
     """Update an account user in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.update_user(user_id=user_id, name=name)
         click.echo(f"User updated successfully: {result.get('id')}")
     except Exception as e:
@@ -111,7 +111,7 @@ def delete_user_cmd(ctx, user_id, force):
         click.echo("Deletion cancelled.")
         return
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.delete_user(user_id)
         click.echo(f"User deleted successfully: {user_id}")
     except Exception as e:

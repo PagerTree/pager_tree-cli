@@ -1,21 +1,19 @@
+import click
 import requests
 import os
 import configparser
 from typing import Optional, List, Dict, Any
 
 class PagerTreeClient:
-    def __init__(self, config_file: Optional[str] = None):
+    def __init__(self):
         """Initialize PagerTree client with configuration."""
-        # Load configuration
-        self.config = self._load_config(config_file)
-
         # Set up base URL and API key
-        self.base_url = self.config.get('DEFAULT', 'BASE_URL', fallback=os.getenv('PAGERTREE_BASE_URL', 'https://api.pagertree.com/api/v4'))
-        self.api_key = self.config.get('DEFAULT', 'API_KEY',  fallback=os.getenv('PAGERTREE_API_KEY'))
+        self.base_url = os.getenv('PAGERTREE_BASE_URL', 'https://api.pagertree.com/api/v4')
+        self.api_key = os.getenv('PAGERTREE_API_KEY')
         self.user_agent = "PagerTree-Python-CLI-Client/1.0"
 
         if not self.api_key:
-            raise ValueError("API_KEY must be provided via environment variable or config file")
+            raise click.UsageError("API_KEY must be provided via environment variable or .env config file")
 
         # Set up default headers
         self.default_headers = {
@@ -27,13 +25,6 @@ class PagerTreeClient:
         # Create a session for persistent connections
         self.session = requests.Session()
         self.session.headers.update(self.default_headers)
-
-    def _load_config(self, config_file: Optional[str]) -> configparser.ConfigParser:
-        """Load configuration from file or return empty config."""
-        config = configparser.ConfigParser()
-        if config_file and os.path.exists(config_file):
-            config.read(config_file)
-        return config
 
     # ALERTS
     # =======

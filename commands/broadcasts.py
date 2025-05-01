@@ -18,7 +18,7 @@ def create_broadcast_cmd(
 ):
     """Create a new broadcast in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.create_broadcast(
             title=title,
             description=description,
@@ -36,7 +36,7 @@ def create_broadcast_cmd(
 def list_broadcasts_cmd(ctx, limit, offset):
     """List broadcasts in PagerTree with pagination."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.list_broadcasts(limit=limit, offset=offset)
         broadcasts_list = result["data"]
         total = result["total"]
@@ -61,7 +61,7 @@ def list_broadcasts_cmd(ctx, limit, offset):
 def show_broadcast_cmd(ctx, broadcast_id):
     """Show details of a specific broadcast in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         broadcast = client.show_broadcast(broadcast_id)
         fields = {
             "id": "Broadcast ID",
@@ -89,7 +89,7 @@ def delete_broadcast_cmd(ctx, broadcast_id, force):
         click.echo("Deletion cancelled.")
         return
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.delete_broadcast(broadcast_id)
         click.echo(f"Broadcast deleted successfully: {broadcast_id}")
     except Exception as e:

@@ -63,22 +63,16 @@ export PAGERTREE_API_KEY=your_api_key_here
 Add it to your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) for persistence.
 
 ### Option 2: Configuration File
-Create a `config.ini` file:
-```ini
-[DEFAULT]
-API_KEY = your_api_key_here
-```
-Specify the config file when running commands:
-```bash
-pagertree --config config.ini alerts list
+Create a `.env` file in the current working directory or specify a custom path:
+
+```env
+PAGERTREE_API_KEY = your_api_key_here
 ```
 
-### Option 3: .env File
-Create a `.env` file in the working directory:
-```env
-PAGERTREE_API_KEY=your_api_key_here
+Specify the config file when running commands:
+```bash
+pagertree --config ../other/path/.env alerts list
 ```
-The CLI automatically loads the `.env` file.
 
 ## Usage
 

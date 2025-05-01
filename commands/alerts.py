@@ -1,4 +1,5 @@
 import click
+import json
 from utils import display_paginated_results, handle_api_error, format_item_details
 
 @click.group()
@@ -17,7 +18,7 @@ def alerts():
 def create_alert_cmd(ctx, title, description, team_ids, urgency, tags, alias):
     """Create a new alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.create_alert(
             title=title,
             description=description,
@@ -39,8 +40,11 @@ def create_alert_cmd(ctx, title, description, team_ids, urgency, tags, alias):
 def list_alerts_cmd(ctx, limit, offset, status, search):
     """List alerts in PagerTree with pagination."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
+        logger = ctx.obj.logger  # Get logger from context
+        logger.debug(f"Listing alerts with limit={limit}, offset={offset}, status={status}, search={search}")
         result = client.list_alerts(limit=limit, offset=offset, status=status, search=search)
+        logger.debug(f"Full response: {json.dumps(result, indent=2)}")
         alerts_list = result["data"]
         total = result["total"]
         # Prepare table data
@@ -48,6 +52,7 @@ def list_alerts_cmd(ctx, limit, offset, status, search):
         table_data = [[alert.get("id"), alert.get("title"), alert.get("status")] for alert in alerts_list]
         display_paginated_results(alerts_list, total, limit, offset, "alert", headers, table_data)
     except Exception as e:
+        logger.error(f"Error listing alerts: {str(e)}")
         handle_api_error(e, action="listing alerts")
 
 @alerts.command(name="show")
@@ -56,7 +61,7 @@ def list_alerts_cmd(ctx, limit, offset, status, search):
 def show_alert_cmd(ctx, alert_id):
     """Show details of a specific alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         alert = client.show_alert(alert_id)
         fields = {
             "id": "ID",
@@ -85,7 +90,7 @@ def delete_alert_cmd(ctx, alert_id, force):
         click.echo("Deletion cancelled.")
         return
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
         result = client.delete_alert(alert_id)
         click.echo(f"Alert deleted successfully: {alert_id}")
     except Exception as e:
@@ -98,7 +103,7 @@ def delete_alert_cmd(ctx, alert_id, force):
 def acknowledge_alert_cmd(ctx, alert_id, alias):
     """Acknowledge an alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
 
         # Ensure at least one of alert_id or alias is provided
         if not alert_id and not alias:
@@ -130,7 +135,7 @@ def acknowledge_alert_cmd(ctx, alert_id, alias):
 def reject_alert_cmd(ctx, alert_id, alias):
     """Reject an alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
 
         # Ensure at least one of alert_id or alias is provided
         if not alert_id and not alias:
@@ -162,7 +167,7 @@ def reject_alert_cmd(ctx, alert_id, alias):
 def resolve_alert_cmd(ctx, alert_id, alias):
     """Resolve an alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
 
         # Ensure at least one of alert_id or alias is provided
         if not alert_id and not alias:
@@ -196,7 +201,7 @@ def resolve_alert_cmd(ctx, alert_id, alias):
 def list_alert_comment_cmd(ctx, alert_id, alias, limit, offset):
     """List an alert's comments in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
 
         # Ensure at least one of alert_id or alias is provided
         if not alert_id and not alias:
@@ -234,7 +239,7 @@ def list_alert_comment_cmd(ctx, alert_id, alias, limit, offset):
 def create_alert_comment_cmd(ctx, alert_id, alias, comment):
     """Add a comment to an alert in PagerTree."""
     try:
-        client = ctx.obj  # Get PagerTreeClient from context
+        client = ctx.obj.client  # Get PagerTreeClient from context
 
         # Ensure at least one of alert_id or alias is provided
         if not alert_id and not alias:

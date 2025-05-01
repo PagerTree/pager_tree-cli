@@ -1,5 +1,8 @@
 import click
 import requests
+from typing import Dict, Any
+from jsonpath_ng import parse
+from jsonpath_ng.exceptions import JsonPathParserError, JsonPathLexerError
 from tabulate import tabulate
 
 def handle_api_error(e, action="performing action"):
@@ -23,14 +26,33 @@ def display_paginated_results(items, total, limit, offset, item_type="item", tab
     if offset + limit < total:
         click.echo(f"More {item_type}s available. Use --offset {offset + limit} to see next page.")
 
-def format_item_details(item, fields):
-    """Format and display item details as a table using tabulate."""
+def format_item_details(item: Dict[str, Any], fields: Dict[str, str]) -> None:
+    """Format and display item details as a table using tabulate, supporting JSON path notation."""
     # Prepare table data: each row is [Display Name, Value]
-    table_data = [
-        [display_name, item.get(field_name, "N/A")]
-        for field_name, display_name in fields.items()
-    ]
+    table_data = []
+    for field_path, display_name in fields.items():
+        try:
+            # Try to parse the field_path as a JSON path
+            jsonpath_expr = parse(field_path)
+            matches = jsonpath_expr.find(item)
+            value = matches[0].value if matches else "N/A"
+        except (JsonPathParserError, JsonPathLexerError, IndexError, KeyError):
+            # Fallback to direct dictionary access for simple field names
+            value = item.get(field_path, "N/A")
+
+        # Format specific types for better readability
+        if isinstance(value, bool):
+            value = "Yes" if value else "No"
+        elif isinstance(value, list):
+            value = ", ".join(str(v) for v in value) if value else "None"
+        elif isinstance(value, dict):
+            value = str(value)  # Convert dict to string for simplicity
+        elif value is None:
+            value = "N/A"
+        
+        table_data.append([display_name, value])
+    
     # Define table headers
     headers = ["Field", "Value"]
-    # Display the table using tabulate with github format
+    # Display the table using tabulate with simple format
     click.echo(tabulate(table_data, headers=headers, tablefmt="simple", maxcolwidths=[None, 50]))

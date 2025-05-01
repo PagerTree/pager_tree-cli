@@ -216,6 +216,36 @@ class PagerTreeClient:
         response.raise_for_status()
         return response.json() if response.content else {"message": "Broadcast deleted successfully"}
 
+    # INTEGRATIONS
+    # ============
+    def list_integrations(self, limit: int = 10, offset: int = 0, search: Optional[str] = None, enabled: Optional[bool] = None) -> Dict[str, Any]:
+        """List all integrations in PagerTree."""
+        params = {k: v for k, v in {"limit": limit, "offset": offset, "q": search, "enabled": enabled}.items() if v is not None}
+        response = self.session.get(f"{self.base_url}/integrations", params=params)
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "data": data.get("data", []),
+            "total": data.get("total_count", 0),
+            "has_more": data.get("has_more", False),
+            "limit": limit,
+            "offset": offset
+        }
+
+    def show_integration(self, integration_id: str) -> Dict[str, Any]:
+        """Fetch a single integration by ID from PagerTree."""
+        response = self.session.get(f"{self.base_url}/integrations/{integration_id}")
+        response.raise_for_status()
+        return response.json()
+
+    def update_integration(self, integration_id: str, enabled: Optional[bool] = None) -> Dict[str, Any]:
+        """Enable an integration in PagerTree."""
+        payload = {"enabled": enabled}
+        payload = {k: v for k, v in payload.items() if v is not None}
+        response = self.session.put(f"{self.base_url}/integrations/{integration_id}", json=payload)
+        response.raise_for_status()
+        return response.json()
+        
     # TEAMS
     # ======
 

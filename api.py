@@ -13,7 +13,7 @@ class PagerTreeClient:
         self.user_agent = "PagerTree-Python-CLI-Client/1.0"
 
         if not self.api_key:
-            raise click.UsageError("API_KEY must be provided via environment variable or .env config file")
+            raise click.UsageError("PAGERTREE_API_KEY must be provided via environment variable or .env config file")
 
         # Set up default headers
         self.default_headers = {
